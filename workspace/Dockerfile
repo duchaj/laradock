@@ -61,7 +61,7 @@ RUN set -xe; \
     apt-get update -yqq && \
     pecl channel-update pecl.php.net && \
     groupadd -g ${PGID} laradock && \
-    useradd -u ${PUID} -g laradock -m laradock -G docker_env && \
+    useradd -l -u ${PUID} -g laradock -m laradock -G docker_env && \
     usermod -p "*" laradock -s /bin/bash && \
     apt-get install -yqq \
       apt-utils \
@@ -146,6 +146,11 @@ RUN chown -R laradock:laradock /home/laradock/.composer
 # Export composer vendor path
 RUN echo "" >> ~/.bashrc && \
     echo 'export PATH="$HOME/.composer/vendor/bin:$PATH"' >> ~/.bashrc
+
+# Update composer
+ARG COMPOSER_VERSION=2
+ENV COMPOSER_VERSION ${COMPOSER_VERSION}
+RUN composer self-update --${COMPOSER_VERSION}
 
 USER laradock
 
@@ -1322,6 +1327,21 @@ ARG INSTALL_SSHPASS=false
 RUN if [ ${INSTALL_SSHPASS} = true ]; then \
     apt-get update -yqq && \
     apt-get -y install sshpass \
+;fi
+
+###########################################################################
+# Docker Client:
+###########################################################################
+
+USER root
+
+ARG INSTALL_DOCKER_CLIENT=false
+
+RUN if [ ${INSTALL_DOCKER_CLIENT} = true ]; then \
+    curl -sS https://download.docker.com/linux/static/stable/x86_64/docker-20.10.3.tgz -o /tmp/docker.tar.gz && \
+    tar -xzf /tmp/docker.tar.gz -C /tmp/ && \
+    cp /tmp/docker/docker* /usr/local/bin && \
+    chmod +x /usr/local/bin/docker* \
 ;fi
 
 ###########################################################################
