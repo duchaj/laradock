@@ -289,6 +289,7 @@ services:
         - backend
       links:
         - docker-in-docker
+      restart: always
 
 ### PHP Worker ############################################
     php-worker:
@@ -390,6 +391,7 @@ services:
       networks:
         - frontend
         - backend
+      restart: always
 
 ### Blackfire ########################################
     blackfire:
@@ -454,24 +456,24 @@ services:
         - backend
 
 ### MySQL ################################################
-    mysql:
-      build:
-        context: ./mysql
-        args:
-          - MYSQL_VERSION=${MYSQL_VERSION}
-      environment:
-        - MYSQL_DATABASE=${MYSQL_DATABASE}
-        - MYSQL_USER=${MYSQL_USER}
-        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-        - TZ=${WORKSPACE_TIMEZONE}
-      volumes:
-        - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
-        - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
-      ports:
-        - "${MYSQL_PORT}:3306"
-      networks:
-        - backend
+#    mysql:
+#      build:
+#        context: ./mysql
+#        args:
+#         - MYSQL_VERSION=${MYSQL_VERSION}
+#      environment:
+#        - MYSQL_DATABASE=${MYSQL_DATABASE}
+#        - MYSQL_USER=${MYSQL_USER}
+#        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+#        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+#        - TZ=${WORKSPACE_TIMEZONE}
+#      volumes:
+#        - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
+#        - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+#      ports:
+#        - "${MYSQL_PORT}:3306"
+#      networks:
+#        - backend
 
 ### Percona ################################################
     percona:
@@ -528,6 +530,7 @@ services:
         - MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
       networks:
         - backend
+      restart: unless-stopped
 
 ### PostgreSQL ###########################################
     postgres:
@@ -871,6 +874,7 @@ services:
       networks:
         - frontend
         - backend
+      restart: always
 
 ### Adminer ###########################################
     adminer:
@@ -1001,9 +1005,10 @@ services:
       volumes:
         - ./data/certbot/certs/:/var/certs
         - ./certbot/letsencrypt/:/var/www/letsencrypt
+        - ./data/certbot/certs/:/etc/letsencrypt/archive/
       environment:
-        - CN="fake.domain.com"
-        - EMAIL="fake.email@gmail.com"
+        - CN=hudu.cz
+        - EMAIL="certbot@ducho.cz"
       networks:
         - frontend
 
